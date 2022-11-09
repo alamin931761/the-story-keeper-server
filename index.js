@@ -17,6 +17,7 @@ async function run() {
     try {
         // await client.connect();
         const rareBooksCollection = client.db('the-story-keeper').collection("rareBooks");
+        const essaysCollection = client.db("the-story-keeper").collection("essays");
 
         // load all rare book data
         app.get('/rareBooks', async (req, res) => {
@@ -34,13 +35,21 @@ async function run() {
             const rareBook = await rareBooksCollection.findOne(query);
             res.send(rareBook);
         });
+
+        // load all essays data 
+        app.get('/essays', async (req, res) => {
+            const query = {};
+            const cursor = essaysCollection.find(query);
+            const essays = await cursor.toArray();
+            res.send(essays);
+        });
+
     }
     finally {
 
     }
 }
 run().catch(console.dir);
-
 
 app.get('/', (req, res) => {
     res.send('Hello from The Story Keeper!')
