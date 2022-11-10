@@ -15,41 +15,23 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 
 async function run() {
     try {
-        // await client.connect();
-        const rareBooksCollection = client.db('the-story-keeper').collection("rareBooks");
-        const essaysCollection = client.db("the-story-keeper").collection("essays");
+        const allBooksCollection = client.db('the-story-keeper').collection("allBooks");
 
-        // load all rare book data
-        app.get('/rareBooks', async (req, res) => {
+        // load all book data
+        app.get('/allBooks', async (req, res) => {
             const query = {};
-            const cursor = rareBooksCollection.
+            const cursor = allBooksCollection.
                 find(query);
-            const rareBooks = await cursor.toArray();
-            res.send(rareBooks);
+            const allBooks = await cursor.toArray();
+            res.send(allBooks);
         });
 
-        // load single rare book data
-        app.get('/rareBook/:id', async (req, res) => {
+        // load single book data
+        app.get('/book/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const rareBook = await rareBooksCollection.findOne(query);
-            res.send(rareBook);
-        });
-
-        // load all essays data 
-        app.get('/essays', async (req, res) => {
-            const query = {};
-            const cursor = essaysCollection.find(query);
-            const essays = await cursor.toArray();
-            res.send(essays);
-        });
-
-        // load single essay data 
-        app.get('/essay/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const essay = await essaysCollection.findOne(query);
-            res.send(essay);
+            const book = await allBooksCollection.findOne(query);
+            res.send(book);
         });
     }
 
