@@ -16,6 +16,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         const allBooksCollection = client.db('the-story-keeper').collection("allBooks");
+        const couponCollection = client.db('the-story-keeper').collection("coupon-code");
 
         // load all book data
         app.get('/allBooks', async (req, res) => {
@@ -24,6 +25,14 @@ async function run() {
                 find(query);
             const allBooks = await cursor.toArray();
             res.send(allBooks);
+        });
+
+        // Load all coupon codes
+        app.get('/couponCodes', async (req, res) => {
+            const query = {};
+            const cursor = couponCollection.find(query);
+            const coupon = await cursor.toArray();
+            res.send(coupon);
         });
 
         // load single book data
