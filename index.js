@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const { query } = require('express');
 const port = process.env.PORT || 5000;
-require('dotenv').config()
+require('dotenv').config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // middleware 
 app.use(cors());
@@ -36,6 +37,18 @@ async function run() {
         const orderCollection = client.db('the-story-keeper').collection("order");
         const couponCollection = client.db('the-story-keeper').collection("coupon-code");
         const userCollection = client.db('the-story-keeper').collection("users");
+        const paymentCollection = client.db('the-story-keeper').collection("payments");
+
+        // verify admin 
+        const verifyAdmin = async (req, res, next) => {
+            const requester = req.decoded.email;
+            const requesterAccount = await userCollection.findOne({ email: requester });
+            if (requesterAccount.role === 'admin') {
+                next();
+            } else {
+                res.status(403).send({ message: 'forbidden access' });
+            }
+        }
 
         // create and update users
         app.put("/user/:email", async (req, res) => {
@@ -51,8 +64,40 @@ async function run() {
             res.send({ result, token });
         });
 
+        // make admin
+        app.put("/user/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'admin' }
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        // Check admin or not
+        app.get('/admin/:email', async (req, res) => {
+            const email = req.params.email;
+            const user = await userCollection.findOne({ email: email });
+            const isAdmin = user.role === 'admin';
+            res.send({ admin: isAdmin })
+        });
+
+        // Stripe 
+        app.post("/create-payment-intent", verifyJWT, async (req, res) => {
+            const { price } = req.body;
+            const bookPrice = price;
+            const amount = bookPrice * 100;
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: amount,
+                currency: "usd",
+                payment_method_types: ['card']
+            });
+            res.send({ clientSecret: paymentIntent.client_secret })
+        });
+
         // load all users 
-        app.get('/users', async (req, res) => {
+        app.get('/users', verifyJWT, verifyAdmin, async (req, res) => {
             // shortcut 
             const users = await userCollection.find().toArray();
             res.send(users);
@@ -67,8 +112,16 @@ async function run() {
             res.send(allBooks);
         });
 
-        // Load all coupon codes
-        app.get('/couponCodes', async (req, res) => {
+        // delete books 
+        app.delete('/allBooks/:id', verifyJWT, verifyAdmin, async (req, res) => {
+            const id = req.params.id;
+            const filter = { _id: ObjectId(id) };
+            const book = await allBooksCollection.deleteOne(filter);
+            res.send(book);
+        });
+
+        // Load all coupon codes 
+        app.get('/couponCodes', verifyJWT, async (req, res) => {
             const query = {};
             const cursor = couponCollection.find(query);
             const coupon = await cursor.toArray();
@@ -83,7 +136,7 @@ async function run() {
             res.send(book);
         });
 
-        // order API 
+        // load order of specific users 
         app.get('/order', verifyJWT, async (req, res) => {
             const email = req.query.email;
             const decodedEmail = req.decoded.email;
@@ -99,12 +152,14 @@ async function run() {
             }
         });
 
+        // send order to database
         app.post('/order', async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
         });
 
+        // load all orders
         app.get('/orders', async (req, res) => {
             const query = {};
             const cursor = orderCollection.find(query);
