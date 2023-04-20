@@ -37,7 +37,7 @@ async function run() {
         const orderCollection = client.db('the-story-keeper').collection("order");
         const couponCollection = client.db('the-story-keeper').collection("coupon-code");
         const userCollection = client.db('the-story-keeper').collection("users");
-        const paymentCollection = client.db('the-story-keeper').collection("payments");
+        // const paymentCollection = client.db('the-story-keeper').collection("payments"); -------------
 
         // verify admin 
         const verifyAdmin = async (req, res, next) => {
@@ -62,6 +62,26 @@ async function run() {
             const result = await userCollection.updateOne(filter, updateDoc, options);
             const token = jwt.sign({ email: email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '1h' })
             res.send({ result, token });
+        });
+
+        // update profile 
+        app.put('/user/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const info = req.body;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: info
+            };
+            const result = await user.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        // load user profile data
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email }
+            const result = await userCollection.find(query).toArray();
+            res.send(result);
         });
 
         // make admin
