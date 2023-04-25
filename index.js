@@ -37,6 +37,7 @@ async function run() {
         const orderCollection = client.db('the-story-keeper').collection("order");
         const couponCollection = client.db('the-story-keeper').collection("coupon-code");
         const userCollection = client.db('the-story-keeper').collection("users");
+        const reviewCollection = client.db('the-story-keeper').collection("reviews");
         // const paymentCollection = client.db('the-story-keeper').collection("payments"); -------------
 
         // verify admin 
@@ -173,19 +174,34 @@ async function run() {
         });
 
         // send order to database
-        app.post('/order', async (req, res) => {
+        app.post('/order', verifyJWT, async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
             res.send(result);
         });
 
         // load all orders
-        app.get('/orders', async (req, res) => {
+        app.get('/orders', verifyJWT, verifyAdmin, async (req, res) => {
             const query = {};
             const cursor = orderCollection.find(query);
             const orders = await cursor.toArray();
             res.send(orders);
         });
+
+        // send review to database 
+        app.post('/review', verifyJWT, async (req, res) => {
+            const review = req.body;
+            const result = reviewCollection.insertOne(review);
+            res.send(result);
+        });
+
+        // load all reviews
+        app.get('/review', async (req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const reviews = await cursor.toArray();
+            res.send(reviews);
+        })
     }
 
     finally {
