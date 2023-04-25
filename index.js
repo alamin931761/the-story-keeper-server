@@ -133,6 +133,26 @@ async function run() {
             res.send(allBooks);
         });
 
+        // send edited book data to database
+        app.patch('/allBooks/:id', async (req, res) => {
+            const id = req.params.id;
+            const bookData = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: bookData
+            }
+            const result = await allBooksCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
+        // load edit book data
+        app.get('/editBook/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const book = await allBooksCollection.findOne(query);
+            res.send(book);
+        });
+
         // delete books 
         app.delete('/allBooks/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
