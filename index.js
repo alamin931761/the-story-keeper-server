@@ -96,6 +96,17 @@ async function run() {
             res.send(result);
         });
 
+        // remove admin 
+        app.patch("/user/admin/:email", verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const updateDoc = {
+                $set: { role: 'user' }
+            };
+            const result = await userCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         // Check admin or not
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
@@ -133,6 +144,14 @@ async function run() {
             res.send(allBooks);
         });
 
+        // load edit book data
+        app.get('/editBook/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const book = await allBooksCollection.findOne(query);
+            res.send(book);
+        });
+
         // send edited book data to database
         app.patch('/allBooks/:id', async (req, res) => {
             const id = req.params.id;
@@ -143,14 +162,6 @@ async function run() {
             }
             const result = await allBooksCollection.updateOne(filter, updateDoc);
             res.send(result);
-        });
-
-        // load edit book data
-        app.get('/editBook/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const book = await allBooksCollection.findOne(query);
-            res.send(book);
         });
 
         // delete books 
