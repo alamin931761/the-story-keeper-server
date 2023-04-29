@@ -38,7 +38,6 @@ async function run() {
         const couponCollection = client.db('the-story-keeper').collection("coupon-code");
         const userCollection = client.db('the-story-keeper').collection("users");
         const reviewCollection = client.db('the-story-keeper').collection("reviews");
-        // const paymentCollection = client.db('the-story-keeper').collection("payments"); -------------
 
         // verify admin 
         const verifyAdmin = async (req, res, next) => {
@@ -164,6 +163,18 @@ async function run() {
             res.send(result);
         });
 
+        // edit order data 
+        app.patch('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const orderData = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: orderData
+            };
+            const result = await orderCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         // delete books 
         app.delete('/allBooks/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
@@ -211,14 +222,6 @@ async function run() {
             res.send(result);
         });
 
-        // load all orders
-        app.get('/orders', verifyJWT, verifyAdmin, async (req, res) => {
-            const query = {};
-            const cursor = orderCollection.find(query);
-            const orders = await cursor.toArray();
-            res.send(orders);
-        });
-
         // add review 
         app.post('/review', verifyJWT, async (req, res) => {
             const review = req.body;
@@ -239,6 +242,14 @@ async function run() {
             const cursor = reviewCollection.find(query);
             const reviews = await cursor.toArray();
             res.send(reviews);
+        });
+
+        // load all orders
+        app.get('/orders', verifyJWT, verifyAdmin, async (req, res) => {
+            const query = {};
+            const cursor = orderCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
         });
     }
 
