@@ -219,10 +219,17 @@ async function run() {
             res.send(orders);
         });
 
-        // send review to database 
+        // add review 
         app.post('/review', verifyJWT, async (req, res) => {
             const review = req.body;
             const result = reviewCollection.insertOne(review);
+            res.send(result);
+        });
+
+        // add books 
+        app.post('/allBooks', verifyJWT, verifyAdmin, async (req, res) => {
+            const newBook = req.body;
+            const result = allBooksCollection.insertOne(newBook);
             res.send(result);
         });
 
@@ -232,7 +239,7 @@ async function run() {
             const cursor = reviewCollection.find(query);
             const reviews = await cursor.toArray();
             res.send(reviews);
-        })
+        });
     }
 
     finally {
