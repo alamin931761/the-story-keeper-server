@@ -7,6 +7,8 @@ const { query } = require('express');
 const port = process.env.PORT || 5000;
 require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const nodemailer = require('nodemailer');
+const sgTransport = require('nodemailer-sendgrid-transport');
 
 // middleware 
 app.use(cors());
@@ -29,7 +31,40 @@ function verifyJWT(req, res, next) {
         req.decoded = decoded;
         next();
     });
-}
+};
+
+// send email 
+const emailSenderOptions = {
+    auth: {
+        api_key: process.env.EMAIL_SENDER_KEY
+    }
+};
+const emailClient = nodemailer.createTransport(sgTransport(emailSenderOptions));
+
+
+function sendOrderEmail(order) {
+    const { name, email, time, date } = order;
+    const OrderEmail = {
+        from: process.env.EMAIL_SENDER,
+        to: email,
+        subject: `Your order has been confirmed`,
+        text: "Your order has been confirmed",
+        html: `
+        <div>
+        <p>Hello, ${name},</p>
+        <h3>Your order has been confirmed</h3>
+        </div>
+        `
+    };
+
+    emailClient.sendMail(OrderEmail, function (err, info) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log("message sent: ", info);
+        }
+    })
+};
 
 async function run() {
     try {
@@ -183,8 +218,16 @@ async function run() {
             res.send(book);
         });
 
+        // delete user 
+        app.delete("/user/:email", verifyJWT, verifyAdmin, async (req, res) => {
+            const email = req.params.email;
+            const filter = { email: email };
+            const user = await userCollection.deleteOne(filter);
+            res.send(user);
+        })
+
         // Load all coupon codes 
-        app.get('/couponCodes', verifyJWT, async (req, res) => {
+        app.get('/couponCodes', async (req, res) => {
             const query = {};
             const cursor = couponCollection.find(query);
             const coupon = await cursor.toArray();
@@ -219,6 +262,7 @@ async function run() {
         app.post('/order', verifyJWT, async (req, res) => {
             const order = req.body;
             const result = await orderCollection.insertOne(order);
+            sendOrderEmail(order);
             res.send(result);
         });
 
