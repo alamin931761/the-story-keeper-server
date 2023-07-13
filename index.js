@@ -41,7 +41,6 @@ const emailSenderOptions = {
 };
 const emailClient = nodemailer.createTransport(sgTransport(emailSenderOptions));
 
-
 function sendOrderEmail(order) {
     const { name, email, time, date } = order;
     const OrderEmail = {
@@ -172,10 +171,10 @@ async function run() {
         // load all book data
         app.get('/allBooks', async (req, res) => {
             const query = {};
-            const cursor = allBooksCollection.
-                find(query);
+            const cursor = allBooksCollection.find(query);
             const allBooks = await cursor.toArray();
-            res.send(allBooks);
+            const count = await allBooksCollection.estimatedDocumentCount();
+            res.send({ count, allBooks });
         });
 
         // load edit book data
