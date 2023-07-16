@@ -173,8 +173,18 @@ async function run() {
             const query = {};
             const cursor = allBooksCollection.find(query);
             const allBooks = await cursor.toArray();
+            res.send(allBooks);
+        });
+
+        // load all book data for allBooks route 
+        app.get('/books', async (req, res) => {
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+            const query = {};
+            const cursor = await allBooksCollection.find(query);
+            const books = await cursor.skip(page * size).limit(size).toArray();
             const count = await allBooksCollection.estimatedDocumentCount();
-            res.send({ count, allBooks });
+            res.send({ count, books });
         });
 
         // load edit book data
