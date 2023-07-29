@@ -3,7 +3,6 @@ const app = express();
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-const { query } = require('express');
 const port = process.env.PORT || 5000;
 require('dotenv').config();
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -71,7 +70,6 @@ async function run() {
         const orderCollection = client.db('the-story-keeper').collection("order");
         const couponCollection = client.db('the-story-keeper').collection("coupon-code");
         const userCollection = client.db('the-story-keeper').collection("users");
-        const reviewCollection = client.db('the-story-keeper').collection("reviews");
 
         // verify admin 
         const verifyAdmin = async (req, res, next) => {
@@ -99,7 +97,7 @@ async function run() {
         });
 
         // update profile 
-        app.put('/user/:email', verifyJWT, async (req, res) => {
+        app.put('/user/:email', async (req, res) => {
             const email = req.params.email;
             const info = req.body;
             const filter = { email: email };
@@ -150,8 +148,8 @@ async function run() {
 
         // Stripe 
         app.post("/create-payment-intent", verifyJWT, async (req, res) => {
-            const { price } = req.body;
-            const bookPrice = price;
+            const { total } = req.body;
+            const bookPrice = total;
             const amount = bookPrice * 100;
             const paymentIntent = await stripe.paymentIntents.create({
                 amount: amount,
@@ -188,7 +186,7 @@ async function run() {
         });
 
         // load edit book data
-        app.get('/editBook/:id', async (req, res) => {
+        app.get('/editBook/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const book = await allBooksCollection.findOne(query);
@@ -196,7 +194,7 @@ async function run() {
         });
 
         // send edited book data to database
-        app.patch('/allBooks/:id', async (req, res) => {
+        app.patch('/allBooks/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const bookData = req.body;
             const filter = { _id: ObjectId(id) };
@@ -208,7 +206,7 @@ async function run() {
         });
 
         // edit order data 
-        app.patch('/orders/:id', async (req, res) => {
+        app.patch('/orders/:id', verifyJWT, verifyAdmin, async (req, res) => {
             const id = req.params.id;
             const orderData = req.body;
             const filter = { _id: ObjectId(id) };
@@ -251,6 +249,18 @@ async function run() {
             res.send(book);
         });
 
+        // add review 
+        app.patch('/book/:id', verifyJWT, async (req, res) => {
+            const id = req.params.id;
+            const bookData = req.body;
+            const filter = { _id: ObjectId(id) };
+            const updateDoc = {
+                $set: bookData
+            }
+            const result = await allBooksCollection.updateOne(filter, updateDoc);
+            res.send(result);
+        });
+
         // load order of specific users 
         app.get('/order', verifyJWT, async (req, res) => {
             const email = req.query.email;
@@ -275,26 +285,11 @@ async function run() {
             res.send(result);
         });
 
-        // add review 
-        app.post('/review', verifyJWT, async (req, res) => {
-            const review = req.body;
-            const result = reviewCollection.insertOne(review);
-            res.send(result);
-        });
-
         // add books 
         app.post('/allBooks', verifyJWT, verifyAdmin, async (req, res) => {
             const newBook = req.body;
-            const result = allBooksCollection.insertOne(newBook);
+            const result = await allBooksCollection.insertOne(newBook);
             res.send(result);
-        });
-
-        // load all reviews
-        app.get('/review', async (req, res) => {
-            const query = {};
-            const cursor = reviewCollection.find(query);
-            const reviews = await cursor.toArray();
-            res.send(reviews);
         });
 
         // load all orders
