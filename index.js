@@ -178,9 +178,16 @@ async function run() {
         app.get('/books', async (req, res) => {
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
+            const sorted = req.headers.sorted;
             const query = {};
             const cursor = await allBooksCollection.find(query);
-            const books = await cursor.skip(page * size).limit(size).toArray();
+            let books = await cursor.skip(page * size).limit(size).toArray();
+            // sort 
+            if (sorted === 'low-high') {
+                books = books.sort((a, b) => a.price - b.price);
+            } else if (sorted === 'high-low') {
+                books = books.sort((a, b) => b.price - a.price);
+            }
             const count = await allBooksCollection.estimatedDocumentCount();
             res.send({ count, books });
         });
