@@ -29,5 +29,5 @@ Welcome to The Story Keeper, an online platform for selling books. This reposito
 * Vercel
 
 ##
-Live site: [The Story Keeper](the-story-keeper-73229.firebaseapp.com) <br>
+Live site: [The Story Keeper](https://the-story-keeper-73229.firebaseapp.com) <br>
 Client site code: [The Story Keeper Client](https://github.com/alamin931761/the-story-keeper-client)
