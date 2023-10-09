@@ -1,5 +1,5 @@
 # [The Story Keeper](https://the-story-keeper-73229.firebaseapp.com/)
-Welcome to The Story Keeper, an online platform for selling books. This repository contains the client-side code for the website.
+Welcome to The Story Keeper, an online platform for selling books. This repository contains the server-side code for the website.
 
 ## Login Credentials
 * Super Admin:
