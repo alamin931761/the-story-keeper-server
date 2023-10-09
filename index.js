@@ -97,7 +97,7 @@ async function run() {
         });
 
         // update profile 
-        app.put('/user/:email', async (req, res) => {
+        app.put('/user/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const info = req.body;
             const filter = { email: email };
@@ -174,30 +174,105 @@ async function run() {
             res.send(allBooks);
         });
 
-        // load all book data for allBooks route 
+        // load all book data 
         app.get('/books', async (req, res) => {
             const page = parseInt(req.query.page);
             const size = parseInt(req.query.size);
             const sorted = req.headers.sorted;
-            const query = {};
-            const cursor = await allBooksCollection.find(query);
-            let books = await cursor.skip(page * size).limit(size).toArray();
-            // sort 
-            if (sorted === 'low-high') {
-                books = books.sort((a, b) => a.price - b.price);
-            } else if (sorted === 'high-low') {
-                books = books.sort((a, b) => b.price - a.price);
+            const minimumSliderValue = parseInt(req.headers.minimum_slider_value);
+            const maximumSliderValue = parseInt(req.headers.maximum_slider_value);
+            const category = req.headers.category;
+
+            let query;
+            if (category) {
+                query = {
+                    "price": {
+                        $gte: minimumSliderValue,
+                        $lte: maximumSliderValue
+                    },
+                    "category": category
+                }
+            } else {
+                query = {
+                    "price": {
+                        $gte: minimumSliderValue,
+                        $lte: maximumSliderValue
+                    }
+                };
             }
-            const count = await allBooksCollection.estimatedDocumentCount();
+
+            if (sorted === "low-high") {
+                const cursor = await allBooksCollection.find(query).sort({ "price": 1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            }
+            else if (sorted === "high-low") {
+                const cursor = await allBooksCollection.find(query).sort({ "price": -1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            } else if (sorted === "a-z") {
+                const cursor = await allBooksCollection.find(query).sort({ "title": 1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            } else if (sorted === "z-a") {
+                const cursor = await allBooksCollection.find(query).sort({ "title": -1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            } else if (sorted === "oldest-newest") {
+                const cursor = await allBooksCollection.find(query).sort({ "publication_date": 1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            } else if (sorted === "newest-oldest") {
+                const cursor = await allBooksCollection.find(query).sort({ "publication_date": -1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            } else if (sorted === "best-selling") {
+                const cursor = await allBooksCollection.find(query).sort({ "totalSales": -1 });
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            } else {
+                const cursor = await allBooksCollection.find(query);
+                let books = await cursor.skip(page * size).limit(size).toArray();
+                const count = await allBooksCollection.countDocuments(query);
+                res.send({ count, books });
+            }
+        });
+
+        // load new arrivals book data
+        app.get('/newArrivals', async (req, res) => {
+            const page = parseInt(req.query.page);
+            const size = parseInt(req.query.size);
+            const minimumSliderValue = parseInt(req.headers.minimum_slider_value);
+            const maximumSliderValue = parseInt(req.headers.maximum_slider_value);
+            const query = {
+                "price": {
+                    $gte: minimumSliderValue,
+                    $lte: maximumSliderValue
+                }
+            }
+            const cursor = await allBooksCollection.find(query).sort({ "publication_date": -1 });
+            let books = await cursor.skip(page * size).limit(size).toArray();
+            const count = await allBooksCollection.countDocuments(query);
             res.send({ count, books });
         });
 
         // load edit book data
         app.get('/editBook/:id', verifyJWT, verifyAdmin, async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const book = await allBooksCollection.findOne(query);
-            res.send(book);
+            try {
+                const id = req.params.id;
+                const query = { _id: ObjectId(id) };
+                const book = await allBooksCollection.findOne(query);
+                res.send(book);
+            } catch (err) {
+                res.status(404).send('Book not found');
+            }
         });
 
         // send edited book data to database
@@ -250,10 +325,14 @@ async function run() {
 
         // load single book data
         app.get('/book/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const book = await allBooksCollection.findOne(query);
-            res.send(book);
+            try {
+                const id = req.params.id;
+                const query = { _id: ObjectId(id) };
+                const book = await allBooksCollection.findOne(query);
+                res.send(book);
+            } catch (err) {
+                res.status(404).send('Book not found');
+            }
         });
 
         // add review 
