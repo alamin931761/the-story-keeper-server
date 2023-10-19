@@ -9,6 +9,11 @@ Welcome to The Story Keeper, an online platform for selling books. This reposito
     - email: movies931761@gmail.com
     - password: Alamin931761@
 
+## Coupon Code
+- rYfEKJJf 
+- 8ss3TkTn
+- lYe85nfG
+
 ## Features:
 * This is a book-selling website. Customers can view book details, buy books, and view only their orders. Customers can add or remove books to the cart. They can search and filter any book.
 * Implemented a secure login system using Firebase authentication, JWT, and email verification.
@@ -30,4 +35,4 @@ Welcome to The Story Keeper, an online platform for selling books. This reposito
 
 ##
 Live site: [The Story Keeper](https://the-story-keeper-73229.firebaseapp.com) <br>
-Client site code: [The Story Keeper Client](https://github.com/alamin931761/the-story-keeper-client)
+Client side code: [The Story Keeper Client](https://github.com/alamin931761/the-story-keeper-client)
