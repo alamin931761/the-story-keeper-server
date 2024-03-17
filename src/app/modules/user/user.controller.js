@@ -3,48 +3,80 @@ const catchAsync = require("../../utils/catchAsync");
 const sendResponse = require("../../utils/sendResponse");
 const UserServices = require("./user.service");
 
-// create user or update user
-const createOrUpdateUser = catchAsync(async (req, res) => {
-  const { email } = req.params;
-  const data = req.body;
-
-  let message;
-  if (Object.keys(data).length > 1) {
-    message = "Users data updated successfully";
-  }
-
-  if (data?.role === "admin") {
-    message = "Successfully made an Admin";
-  } else {
-    message = "Successfully remove an admin";
-  }
-
-  const result = await UserServices.createOrUpdateUserIntoDB(email, data);
+// create user or login user
+const createOrLoginUser = catchAsync(async (req, res) => {
+  const result = await UserServices.createOrLoginUser(req.body);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: message,
+    message: "Log in successfully",
+    data: result,
+  });
+
+  console.log(result);
+});
+
+// get single user
+const getSingleUser = catchAsync(async (req, res) => {
+  const { email } = req.params;
+  const result = await UserServices.getSingleUserFromDB(email);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User is retrieved successfully",
     data: result,
   });
 });
 
-// remove user
-const removeUser = catchAsync(async (req, res) => {
-  const { email } = req.params;
-  const result = await UserServices.removeUserFromDB(email);
+// get all users
+const getAllUsers = catchAsync(async (req, res) => {
+  const result = await UserServices.getAllUsersFromDB();
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "User deleted successfully",
+    message: "Users are retrieved successfully",
+    data: result,
+  });
+});
+
+// update profile
+const updateProfile = catchAsync(async (req, res) => {
+  const result = await UserServices.updateProfileIntoDB(
+    req.params.email,
+    req.body
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Profile updated successfully",
+    data: result,
+  });
+});
+
+const updateRole = catchAsync(async (req, res) => {
+  const result = await UserServices.updateRoleIntoDB(
+    req.params.email,
+    req.body
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Role updated successfully",
     data: result,
   });
 });
 
 const UserControllers = {
-  createOrUpdateUser,
-  removeUser,
+  createOrLoginUser,
+  getSingleUser,
+  getAllUsers,
+  updateProfile,
+  updateRole,
 };
 
 module.exports = UserControllers;

@@ -8,6 +8,7 @@ module.exports = {
   node_env: process.env.NODE_ENV,
   database_url: process.env.DATABASE_URL,
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
+  jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN,
   stripe_secret_key: process.env.STRIPE_SECRET_KEY,
   email_sender_key: process.env.EMAIL_SENDER_KEY,
   email_sender: process.env.EMAIL_SENDER,

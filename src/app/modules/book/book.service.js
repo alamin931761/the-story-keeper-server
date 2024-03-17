@@ -2,40 +2,67 @@ const httpStatus = require("http-status");
 const AppError = require("../../../error/appError");
 const { Book } = require("./book.model");
 
+// add book
 const addBookIntoDB = async (payload) => {
   const result = await Book.create({ ...payload, totalSales: 0 });
   return result;
 };
 
+// get all books
 const getAllBooksFromDB = async (query) => {
   const queryObject = { ...query };
 
+  // price range
+  let minimumPrice = 0;
+  let maximumPrice = 2000;
+  if (query.minimumValue) {
+    minimumPrice = Number(query.minimumValue);
+  }
+
+  if (query?.maximumValue) {
+    maximumPrice = Number(query.maximumValue);
+  }
+
+  const booksInPriceRange = Book.find({
+    price: { $gte: minimumPrice, $lte: maximumPrice },
+  });
+
   //searching
   let searchTerm = "";
-  if (query?.searchTerm) {
-    searchTerm = query?.searchTerm;
+  if (query.searchTerm) {
+    searchTerm = query.searchTerm;
   }
   const bookSearchableFields = ["title", "author", "isbn"];
-  const searchQuery = Book.find({
+  const searchQuery = booksInPriceRange.find({
     $or: bookSearchableFields.map((field) => ({
       [field]: { $regex: searchTerm, $options: "i" },
     })),
   });
 
   // filtering
-  const excludeFields = ["searchTerm", "sort", "limit", "page", "fields"];
+  const excludeFields = [
+    "searchTerm",
+    "sort",
+    "limit",
+    "page",
+    "fields",
+    "minimumValue",
+    "maximumValue",
+  ];
   excludeFields.forEach((element) => delete queryObject[element]);
   const filterQuery = searchQuery.find(queryObject);
+  // count
+  const count = await Book.countDocuments(filterQuery);
 
   // sorting
-  let sort = "-createdAt";
+  let sort = "availableQuantity";
   if (query.sort) {
     sort = query.sort;
   }
   const sortQuery = filterQuery.sort(sort);
 
   // limiting
-  let limit = 100;
+  let limit = 3;
   let page = 1;
   let skip = 0;
   if (query.limit) {
@@ -54,9 +81,11 @@ const getAllBooksFromDB = async (query) => {
     fields = query.fields.split(",").join(" ");
   }
   const fieldQuery = await limitQuery.select(fields);
-  return fieldQuery;
+
+  return { fieldQuery, count };
 };
 
+// get single book
 const getSingleBookFromDB = async (id) => {
   const book = await Book.isBookExist(id);
   if (!book) {
@@ -65,6 +94,7 @@ const getSingleBookFromDB = async (id) => {
   return book;
 };
 
+// update book
 const updateBookIntoDB = async (id, payload) => {
   const book = await Book.isBookExist(id);
   if (!book) {
@@ -77,6 +107,7 @@ const updateBookIntoDB = async (id, payload) => {
   return result;
 };
 
+// delete book
 const deleteBookFromDB = async (id) => {
   const book = await Book.isBookExist(id);
   if (!book) {
@@ -84,12 +115,11 @@ const deleteBookFromDB = async (id) => {
   }
 
   const result = await Book.deleteOne({ _id: id }, { new: true });
-  console.log(result);
   return result;
 };
 
+// get random books
 const getRandomBooksFromDB = async (id, category) => {
-  console.log(category);
   const book = await Book.isBookExist(id);
   if (!book) {
     throw new AppError(httpStatus.NOT_FOUND, "Book not found!");

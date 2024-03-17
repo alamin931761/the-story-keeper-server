@@ -8,19 +8,28 @@ const router = Router();
 // add book
 router.post(
   "/add-book",
-  validateRequest(bookValidations.AddBookValidationSchema),
+  validateRequest(bookValidations.addBookValidationSchema),
   BookControllers.addBook
 );
 
+// get all books
 router.get("/", BookControllers.getAllBooks);
 
+// get single books
 router.get("/:id", BookControllers.getSingleBook);
 
-router.patch("/:id", BookControllers.updateBook);
+// update book
+router.patch(
+  "/:id",
+  validateRequest(bookValidations.updateBookValidationSchema),
+  BookControllers.updateBook
+);
 
+// delete book
 router.delete("/:id", BookControllers.deleteBook);
 
-router.get("/random/:id", BookControllers.getRandomBooks);
+// get random books
+router.get("/random-books/:id", BookControllers.getRandomBooks);
 
 const BookRoutes = router;
 

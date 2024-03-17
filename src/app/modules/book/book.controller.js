@@ -3,6 +3,7 @@ const catchAsync = require("../../utils/catchAsync");
 const sendResponse = require("../../utils/sendResponse");
 const BookServices = require("./book.service");
 
+// add book
 const addBook = catchAsync(async (req, res) => {
   const result = await BookServices.addBookIntoDB(req.body);
 
@@ -14,6 +15,7 @@ const addBook = catchAsync(async (req, res) => {
   });
 });
 
+// get all books
 const getAllBooks = catchAsync(async (req, res) => {
   const result = await BookServices.getAllBooksFromDB(req.query);
 
@@ -25,6 +27,7 @@ const getAllBooks = catchAsync(async (req, res) => {
   });
 });
 
+// get single book
 const getSingleBook = catchAsync(async (req, res) => {
   const result = await BookServices.getSingleBookFromDB(
     req.params.id,
@@ -39,6 +42,7 @@ const getSingleBook = catchAsync(async (req, res) => {
   });
 });
 
+// update book
 const updateBook = catchAsync(async (req, res) => {
   const result = await BookServices.updateBookIntoDB(req.params.id, req.body);
 
@@ -50,6 +54,7 @@ const updateBook = catchAsync(async (req, res) => {
   });
 });
 
+// delete book
 const deleteBook = catchAsync(async (req, res) => {
   const result = await BookServices.deleteBookFromDB(req.params.id);
 
@@ -61,7 +66,7 @@ const deleteBook = catchAsync(async (req, res) => {
   });
 });
 
-// random
+// get random books
 const getRandomBooks = catchAsync(async (req, res) => {
   const result = await BookServices.getRandomBooksFromDB(
     req.params.id,

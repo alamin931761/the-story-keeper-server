@@ -21,7 +21,6 @@ const bookSchema = new Schema(
     author: {
       type: String,
       trim: true,
-      unique: true,
       required: [true, "Author field is required"],
     },
 

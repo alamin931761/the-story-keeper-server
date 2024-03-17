@@ -1,6 +1,6 @@
 const { z } = require("zod");
 
-const AddBookValidationSchema = z.object({
+const addBookValidationSchema = z.object({
   body: z.object({
     imageURL: z
       .string({
@@ -108,21 +108,19 @@ const updateBookValidationSchema = z.object({
         invalid_type_error: "Price must be a number",
       })
       .positive("Price must be greater than 0")
-      .lte(2000, "Price must be less than or equal to 2000")
-      .optional(),
+      .lte(2000, "Price must be less than or equal to 2000"),
 
     availableQuantity: z
       .number({
         required_error: "Available quantity field is required",
         invalid_type_error: "Available quantity must be a number",
       })
-      .positive("Available quantity must be greater than 0")
-      .optional(),
+      .positive("Available quantity must be greater than 0"),
   }),
 });
 
 const bookValidations = {
-  AddBookValidationSchema,
+  addBookValidationSchema,
   updateBookValidationSchema,
 };
 

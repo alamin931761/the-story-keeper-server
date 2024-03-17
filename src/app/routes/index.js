@@ -1,6 +1,7 @@
 const express = require("express");
 const { UserRoutes } = require("../modules/user/user.route");
 const { BookRoutes } = require("../modules/book/book.route");
+const { ReviewRoutes } = require("../modules/review/review.route");
 
 const router = express.Router();
 
@@ -12,6 +13,10 @@ const moduleRoutes = [
   {
     path: "/books",
     route: BookRoutes,
+  },
+  {
+    path: "/reviews",
+    route: ReviewRoutes,
   },
 ];
 
