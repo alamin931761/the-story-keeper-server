@@ -18,6 +18,18 @@ const addReview = catchAsync(async (req, res) => {
   });
 });
 
+// get single review
+const getSingleReview = catchAsync(async (req, res) => {
+  const result = await ReviewServices.getSingleReviewFromDB(req.params.id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Review is retrieved successfully!",
+    data: result,
+  });
+});
+
 // Get all reviews for a specific book
 const getAllReviews = catchAsync(async (req, res) => {
   const result = await ReviewServices.getAllReviewsFromDB(req.params.bookId);
@@ -58,6 +70,7 @@ const deleteReview = catchAsync(async (req, res) => {
 
 const ReviewController = {
   addReview,
+  getSingleReview,
   getAllReviews,
   updateReview,
   deleteReview,

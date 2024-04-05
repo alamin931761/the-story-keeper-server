@@ -32,6 +32,7 @@ const getSingleUser = catchAsync(async (req, res) => {
 
 // get all users
 const getAllUsers = catchAsync(async (req, res) => {
+  // console.log(req.user);
   const result = await UserServices.getAllUsersFromDB();
 
   sendResponse(res, {

@@ -1,6 +1,6 @@
 const config = require("../../../config");
 const User = require("./user.model");
-const jwt = require("jsonwebtoken");
+const { createToken } = require("./user.utils");
 
 // create or login user
 const createOrLoginUser = async (payload) => {
@@ -16,9 +16,11 @@ const createOrLoginUser = async (payload) => {
     role: user.role,
   };
 
-  const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret, {
-    expiresIn: config.jwt_access_expires_in,
-  });
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret,
+    config.jwt_access_expires_in
+  );
 
   return { accessToken };
 };

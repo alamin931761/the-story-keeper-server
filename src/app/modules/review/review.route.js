@@ -12,6 +12,9 @@ router.post(
   ReviewController.addReview
 );
 
+// get single review
+router.get("/single-review/:id", ReviewController.getSingleReview);
+
 // Get all reviews for a specific book
 router.get("/:bookId", ReviewController.getAllReviews);
 

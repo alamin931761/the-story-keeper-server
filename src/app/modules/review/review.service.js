@@ -1,3 +1,5 @@
+const httpStatus = require("http-status");
+const AppError = require("../../../error/appError");
 const User = require("../user/user.model");
 const { Review } = require("./review.model");
 
@@ -16,21 +18,40 @@ const getAllReviewsFromDB = async (bookId) => {
   const result = await Review.find({ bookId })
     .populate({
       path: "user",
-      select: "imageURL name email createdAt -_id",
+      select: "imageURL name email -_id",
     })
-    .select("-updatedAt -__v")
+    .select("-updatedAt -__v -bookId")
     .sort("-createdAt");
   return result;
 };
 
+// get single review
+const getSingleReviewFromDB = async (id) => {
+  const review = await Review.findById(id).select("bookId");
+  if (!review) {
+    throw new AppError(httpStatus.NOT_FOUND, "Review not found!");
+  }
+  return review;
+};
+
 // update review
 const updateReviewIntoDB = async (id, payload) => {
+  const review = await Review.isReviewExist(id);
+  if (!review) {
+    throw new AppError(httpStatus.NOT_FOUND, "Review not found!");
+  }
+
   const result = await Review.findByIdAndUpdate(id, payload, { new: true });
   return result;
 };
 
 // delete review
 const deleteReviewFromDB = async (id) => {
+  const review = await Review.isReviewExist(id);
+  if (!review) {
+    throw new AppError(httpStatus.NOT_FOUND, "Review not found!");
+  }
+
   const result = await Review.findByIdAndDelete(id);
   return result;
 };
@@ -40,6 +61,7 @@ const ReviewServices = {
   getAllReviewsFromDB,
   updateReviewIntoDB,
   deleteReviewFromDB,
+  getSingleReviewFromDB,
 };
 
 module.exports = { ReviewServices };

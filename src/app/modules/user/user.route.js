@@ -2,6 +2,8 @@ const express = require("express");
 const UserControllers = require("./user.controller");
 const { validateRequest } = require("../../middlewares/validateRequest");
 const { userValidations } = require("./user.validation");
+const auth = require("../../middlewares/auth");
+const USER_ROLE = require("./user.constant");
 
 const router = express.Router();
 
@@ -16,6 +18,7 @@ router.put(
 router.get("/:email", UserControllers.getSingleUser);
 
 // get all users
+// router.get("/", auth(USER_ROLE.superAdmin), UserControllers.getAllUsers);
 router.get("/", UserControllers.getAllUsers);
 
 // update profile

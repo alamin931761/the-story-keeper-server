@@ -29,6 +29,11 @@ const reviewSchema = new Schema(
   }
 );
 
+reviewSchema.statics.isReviewExist = async function (id) {
+  const existingReview = await Review.findById(id);
+  return existingReview;
+};
+
 const Review = model("Review", reviewSchema);
 
 module.exports = { Review };
