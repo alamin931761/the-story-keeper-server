@@ -4,6 +4,7 @@ const { BookRoutes } = require("../modules/book/book.route");
 const { ReviewRoutes } = require("../modules/review/review.route");
 const { CouponRoutes } = require("../modules/coupon/coupon.route");
 const { PaymentRoute } = require("../modules/payment/payment.route");
+const { OrderRoutes } = require("../modules/order/order.route");
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: "/payments",
     route: PaymentRoute,
+  },
+  {
+    path: "/orders",
+    route: OrderRoutes,
   },
 ];
 
