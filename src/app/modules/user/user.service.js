@@ -29,7 +29,14 @@ const createOrLoginUser = async (payload) => {
 const getSingleUserFromDB = async (email) => {
   const result = await User.findOne(
     { email },
-    { email: 1, name: 1, address: 1, phoneNumber: 1, role: 1, imageURL: 1 }
+    {
+      email: 1,
+      name: 1,
+      address: 1,
+      phoneNumber: 1,
+      imageURL: 1,
+      role: 1,
+    }
   );
   return result;
 };

@@ -27,7 +27,12 @@ const getAllReviewsFromDB = async (bookId) => {
 
 // get single review
 const getSingleReviewFromDB = async (id) => {
-  const review = await Review.findById(id).select("bookId");
+  const review = await Review.findById(id)
+    .populate({
+      path: "user",
+      select: "email",
+    })
+    .select("bookId user");
   if (!review) {
     throw new AppError(httpStatus.NOT_FOUND, "Review not found!");
   }

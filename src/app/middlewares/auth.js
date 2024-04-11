@@ -6,7 +6,8 @@ const catchAsync = require("../utils/catchAsync");
 
 const auth = (...requiredRules) => {
   return catchAsync(async (req, res, next) => {
-    const token = req.headers.authorization;
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(" ")[1];
 
     // if the token is not sent from the client
     if (!token) {

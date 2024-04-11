@@ -18,18 +18,22 @@ router.put(
 router.get("/:email", UserControllers.getSingleUser);
 
 // get all users
-// router.get("/", auth(USER_ROLE.superAdmin), UserControllers.getAllUsers);
-router.get("/", UserControllers.getAllUsers);
+router.get("/", auth(USER_ROLE.superAdmin), UserControllers.getAllUsers);
 
 // update profile
 router.patch(
   "/update-profile/:email",
+  auth(USER_ROLE.superAdmin, USER_ROLE.admin, USER_ROLE.user),
   validateRequest(userValidations.updateProfileValidationSchema),
   UserControllers.updateProfile
 );
 
 // update role
-router.patch("/update-role/:email", UserControllers.updateRole);
+router.patch(
+  "/update-role/:email",
+  auth(USER_ROLE.superAdmin),
+  UserControllers.updateRole
+);
 
 const UserRoutes = router;
 

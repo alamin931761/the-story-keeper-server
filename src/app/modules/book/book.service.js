@@ -51,6 +51,7 @@ const getAllBooksFromDB = async (query) => {
   ];
   excludeFields.forEach((element) => delete queryObject[element]);
   const filterQuery = searchQuery.find(queryObject);
+
   // count
   const count = await Book.countDocuments(filterQuery);
 

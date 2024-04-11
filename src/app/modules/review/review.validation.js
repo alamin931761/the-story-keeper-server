@@ -22,7 +22,6 @@ const addReviewValidationSchema = z.object({
         required_error: "Review content is required",
         invalid_type_error: "Review content must be a string",
       })
-      .min(5, { message: "Review content must be 5 or more characters long" })
       .trim(),
   }),
 });
@@ -43,7 +42,6 @@ const updateReviewValidationSchema = z.object({
         required_error: "Review content is required",
         invalid_type_error: "Review content must be a string",
       })
-      .min(5, { message: "Review content must be 5 or more characters long" })
       .trim()
       .optional(),
   }),

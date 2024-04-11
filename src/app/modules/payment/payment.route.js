@@ -5,11 +5,7 @@ const paymentController = require("./payment.controller");
 
 const router = Router();
 
-router.post(
-  "/create-payment-intent",
-  // auth(USER_ROLE.user, USER_ROLE.admin, USER_ROLE.superAdmin),
-  paymentController
-);
+router.post("/create-payment-intent", auth(USER_ROLE.user), paymentController);
 
 const PaymentRoute = router;
 
