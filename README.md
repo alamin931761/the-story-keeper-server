@@ -43,7 +43,7 @@ Welcome to The Story Keeper, an online platform for selling books. This reposito
 - Stripe
 - JSON Web Token
 - Zod
-- Vercel
+- Cyclic
 
 ##
 
