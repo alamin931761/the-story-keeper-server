@@ -4,7 +4,7 @@ const router = require("./app/routes");
 
 const app = express();
 const cors = require("cors");
-const globalErrorHandler = require("./app/middlewares/globalErorrHandler");
+const globalErrorHandler = require("./app/middlewares/globalErrorHandler");
 
 // parsers
 app.use(express.json());

@@ -1,7 +1,7 @@
 const { ZodError } = require("zod");
 const handleZodError = require("../../error/handleZodError");
 const handleValidationError = require("../../error/handleValidationError");
-const handleCastError = require("../../error/CastError");
+const handleCastError = require("../../error/castError");
 const handleDuplicateError = require("../../error/handleDuplicateError");
 const AppError = require("../../error/appError");
 const config = require("../../config");
