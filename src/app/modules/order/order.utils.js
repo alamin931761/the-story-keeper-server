@@ -38,10 +38,10 @@ const fetchOrdersWithDetails = async (orders) => {
       const findBook = await Book.findById(bookId).select(
         "title price imageURL -_id"
       );
-      const details = { ...findBook.toObject(), quantity };
+      const details = { ...findBook?.toObject(), quantity };
       bookDetails.push(details);
     }
-    const bookArray = { ...order.toObject(), books: bookDetails };
+    const bookArray = { ...order?.toObject(), books: bookDetails };
     ordersArray.push(bookArray);
   }
 

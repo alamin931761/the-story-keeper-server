@@ -20,6 +20,10 @@ Welcome to The Story Keeper, an online platform for selling books. This reposito
 - save30
 - save50
 
+## Payment credentials
+
+- [stripe test cards](https://docs.stripe.com/testing#use-test-cards)
+
 ## Features:
 
 - This website specializes in selling books, offering customers the ability to view book details, make purchases, and access their order history exclusively. Customers can easily add or remove books from their cart and utilize search and filtering options for efficient browsing.
